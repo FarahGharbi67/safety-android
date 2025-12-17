@@ -50,4 +50,17 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // Compose UI
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+
+    // Compose Core
+    implementation(libs.androidx.activity.compose)
+
+    // Eclipse Paho (MQTT)
+    implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.1")
 }
