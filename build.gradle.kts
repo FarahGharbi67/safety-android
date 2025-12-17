@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "br.com.utfpr.safety"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "br.com.utfpr.safety"
