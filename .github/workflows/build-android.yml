@@ -1,7 +1,11 @@
-name: Build Safety Android APK
+
+name: Build Android APK
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   build:
@@ -12,38 +16,29 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Java
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Inspect Gradle files
-        run: |
-          echo "=== Project root ==="
-          ls -la
-          echo "=== Gradle configuration files ==="
-          find . -maxdepth 5 -type f \( \
-            -name "settings.gradle" -o \
-            -name "settings.gradle.kts" -o \
-            -name "build.gradle" -o \
-            -name "build.gradle.kts" -o \
-            -name "gradlew" -o \
-            -name "libs.versions.toml" \
-          \)
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
 
-      - name: Build APK
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
         run: |
-          if [ ! -f gradlew ]; then
-            echo "ERROR: gradlew is missing from the repository root."
-            exit 1
-          fi
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          sdkmanager --install "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Build debug APK
+        run: gradle assembleDebug
 
       - name: Upload APK
-        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: safety-debug-apk
-          path: "**/build/outputs/apk/debug/*.apk"
+          name: safety-android-debug
+          path: build/outputs/apk/debug/*.apk
           if-no-files-found: error
