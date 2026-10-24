@@ -1,4 +1,3 @@
-```yaml
 name: Build Safety Android APK
 
 on:
@@ -9,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Android repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Java
@@ -18,18 +17,24 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Inspect project files
+      - name: Inspect Gradle files
         run: |
-          echo "=== Root directory ==="
+          echo "=== Project root ==="
           ls -la
-          echo "=== Gradle files ==="
-          find . -maxdepth 4 \( -name "settings.gradle*" -o -name "build.gradle*" -o -name "gradlew" -o -name "libs.versions.toml" \) -print
+          echo "=== Gradle configuration files ==="
+          find . -maxdepth 5 -type f \( \
+            -name "settings.gradle" -o \
+            -name "settings.gradle.kts" -o \
+            -name "build.gradle" -o \
+            -name "build.gradle.kts" -o \
+            -name "gradlew" -o \
+            -name "libs.versions.toml" \
+          \)
 
       - name: Build APK
         run: |
           if [ ! -f gradlew ]; then
-            echo "ERREUR : gradlew est absent de la racine."
-            echo "Impossible de compiler avant de configurer Gradle."
+            echo "ERROR: gradlew is missing from the repository root."
             exit 1
           fi
           chmod +x gradlew
@@ -42,26 +47,3 @@ jobs:
           name: safety-debug-apk
           path: "**/build/outputs/apk/debug/*.apk"
           if-no-files-found: error
-
-4. Clique sur **Commit changes** pour enregistrer.
-
-## Étape 2 — Relancer GitHub Actions
-
-1. Ouvre l'onglet **Actions**.
-2. Sélectionne **Build Safety Android APK**.
-3. Clique sur **Run workflow**.
-4. Ouvre la nouvelle exécution et clique sur `build`.
-
-### Que va-t-il se passer ?
-
-Le workflow va rechercher les fichiers Gradle, puis tenter de compiler l'application.
-
-- **Si la compilation réussit :** tu pourras télécharger l'APK dans la section `Artifacts`.
-- **Si `gradlew` est absent :** le journal nous indiquera qu'il faut configurer le projet Gradle.
-- **Si une autre erreur apparaît :** nous pourrons corriger la configuration correspondante.
-
-## Étape 3 — Envoie-moi le nouveau résultat
-
-Après avoir relancé le workflow, copie ici le message affiché à l'étape **Build APK**.
-
-Nous sommes maintenant en train de remplacer le test initial par une vraie compilation. L'objectif reste de générer un APK installable sur ton téléphone, sans Android Studio.
